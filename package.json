@@ -1,0 +1,40 @@
+{
+  "name": "tsundere",
+  "version": "1.0.0",
+  "description": "An anime video upscaler using waifu2x or real-esrgan's anime model.",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Morgul/tsundere.git"
+  },
+  "keywords": [
+    "anime",
+    "video",
+    "waifu2x",
+    "real-esrgan",
+    "upscale",
+    "node"
+  ],
+  "author": "Christopher S. Case <chris.case@g33xnexus.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Morgul/tsundere/issues"
+  },
+  "homepage": "https://github.com/Morgul/tsundere#readme",
+  "dependencies": {
+    "ansi-color": "^0.2.1",
+    "ansi-colors": "^4.1.3",
+    "bluebird": "^3.7.2",
+    "cli-progress": "^3.11.2",
+    "commander": "^9.4.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "humanize-duration": "^3.27.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.26.0"
+  }
+}
