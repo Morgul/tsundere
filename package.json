@@ -32,7 +32,8 @@
     "cli-progress": "^3.11.2",
     "commander": "^9.4.1",
     "fluent-ffmpeg": "^2.1.2",
-    "humanize-duration": "^3.27.3"
+    "humanize-duration": "^3.27.3",
+    "which": "^2.0.2"
   },
   "devDependencies": {
     "eslint": "^8.26.0"

@@ -49,6 +49,11 @@ class FileEngine
     {
         return fs.mkdtemp(path.join(tmpdir(), `${ prefix }-`));
     }
+
+    async rmdir(dirPath, recursive = true)
+    {
+        return fs.rm(dirPath, { recursive, force: recursive });
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
