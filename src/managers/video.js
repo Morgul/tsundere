@@ -55,69 +55,6 @@ class VideoManager
         progressBar.stop();
     }
 
-    async $mergeFilesOld(videoPath, upscaledFile, output, totalFrames)
-    {
-        const progressBar = new cliProgress.SingleBar({
-            format: 'Rebuilding Video  |' + colors.cyan('{bar}') + '| {percentage}% || {frames}/{totalFrames} || FPS: {fps} || Step {step} of 2',
-            barCompleteChar: '\u2588',
-            barIncompleteChar: '\u2591',
-            hideCursor: true
-        });
-
-        await ffmpeg.replaceVideo(videoPath, upscaledFile, upscaledFile.replace('.mkv', '.mp4'),
-            (cmd) =>
-            {
-                console.debug('ffmpeg cmd:', cmd);
-
-                progressBar.start(totalFrames, 0, {
-                    frames: 0,
-                    fps: 0,
-                    totalFrames,
-                    step: 1
-                });
-            },
-            (progress) =>
-            {
-                progressBar.update(progress.frames, {
-                    frames: progress.frames,
-                    fps: progress.currentFps
-                });
-            }
-        );
-
-        // Stop for the moment
-        progressBar.stop();
-
-        await ffmpeg.mergeSubtitles(upscaledFile.replace('.mkv', '.mp4'), videoPath, output,
-            (cmd) =>
-            {
-                console.debug('ffmpeg cmd:', cmd);
-
-                // Reset for Step 2
-                progressBar.start(totalFrames, 0, {
-                    frames: 0,
-                    fps: 0,
-                    totalFrames,
-                    step: 2
-                });
-            },
-            (progress) =>
-            {
-                progressBar.update(progress.frames, {
-                    frames: progress.frames,
-                    fps: progress.currentFps
-                });
-            }
-        );
-
-        // Ensure a final update
-        progressBar.update(totalFrames, {
-            frames: totalFrames
-        });
-
-        progressBar.stop();
-    }
-
     async $importFrames(scaledFramePath, upscaledFile, fps, totalFrames, debug)
     {
         const importBar = new cliProgress.SingleBar({
@@ -189,33 +126,38 @@ class VideoManager
 
     async $upscaleFrames(sourceFramePath, scaledFramePath, scale, model, pretend, totalFrames, debug)
     {
-        const progressBar = new cliProgress.SingleBar({
-            format: 'Upscaling Frames  |' + colors.cyan('{bar}') + '| {percentage}% || {frames}/{totalFrames} || FPS: {fps}',
-            barCompleteChar: '\u2588',
-            barIncompleteChar: '\u2591',
-            hideCursor: true
-        });
+        // const progressBar = new cliProgress.SingleBar({
+        //     format: 'Upscaling Frames  |' + colors.cyan('{bar}') + '| {percentage}% || {frames}/{totalFrames} || FPS: {fps}',
+        //     barCompleteChar: '\u2588',
+        //     barIncompleteChar: '\u2591',
+        //     hideCursor: true
+        // });
 
-        progressBar.start(totalFrames, 0, {
-            frames: 0,
-            fps: 0,
-            totalFrames,
-        });
+        // progressBar.start(totalFrames, 0, {
+        //     frames: 0,
+        //     fps: 0,
+        //     totalFrames,
+        // });
 
-        await this.$upscaleDir(sourceFramePath, scaledFramePath, scale, model, ({ frames, fps }) =>
-        {
-            progressBar.update(frames, {
-                frames,
-                fps
-            });
-        }, pretend);
+        console.log('Upscaling...');
 
-        // Ensure a final update
-        progressBar.update(totalFrames, {
-            frames: totalFrames
-        });
+        // TODO: Need progress reporting
+        await upscaler.upscale(sourceFramePath, scaledFramePath, model, scale);
 
-        progressBar.stop();
+        // await this.$upscaleDir(sourceFramePath, scaledFramePath, scale, model, ({ frames, fps }) =>
+        // {
+        //     progressBar.update(frames, {
+        //         frames,
+        //         fps
+        //     });
+        // }, pretend);
+
+        // // Ensure a final update
+        // progressBar.update(totalFrames, {
+        //     frames: totalFrames
+        // });
+
+        // progressBar.stop();
     }
 
     async $extractFrames(videoPath, sourceFramePath, totalFrames, debug)
