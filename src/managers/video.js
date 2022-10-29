@@ -21,9 +21,10 @@ class VideoManager
     async $mergeFiles(videoPath, upscaledFile, output, debug)
     {
         const progressBar = new cliProgress.SingleBar({
-            format: 'Rebuilding Video  |' + colors.cyan('{bar}') + '| {percent}%',
+            format: 'Rebuilding Video  |' + colors.cyan('{bar}') + '| {percentage}% | ETA: {eta_formatted}',
             barCompleteChar: '\u2588',
             barIncompleteChar: '\u2591',
+            autopadding: true,
             hideCursor: true
         });
 
@@ -35,32 +36,26 @@ class VideoManager
                     console.debug('mkvmerge cmd:', cmd);
                 }
 
-                progressBar.start(100, 0, {
-                    percent: 0
-                });
+                progressBar.start(100, 0);
             },
             ({ percent }) =>
             {
-                progressBar.update(percent, {
-                    percent
-                });
+                progressBar.update(percent);
             }
         );
 
         // Ensure a final update
-        progressBar.update(100, {
-            percent: 100
-        });
-
+        progressBar.update(100);
         progressBar.stop();
     }
 
     async $importFrames(scaledFramePath, upscaledFile, fps, totalFrames, debug)
     {
         const importBar = new cliProgress.SingleBar({
-            format: 'Importing Frames  |' + colors.cyan('{bar}') + '| {percentage}% || {frames}/{totalFrames} || FPS: {fps}',
+            format: 'Importing Frames  |' + colors.cyan('{bar}') + '| {percentage}% | ETA: {eta_formatted} | {value}/{total} | FPS: {fps}',
             barCompleteChar: '\u2588',
             barIncompleteChar: '\u2591',
+            autopadding: true,
             hideCursor: true
         });
 
@@ -73,25 +68,19 @@ class VideoManager
                 }
 
                 importBar.start(totalFrames, 0, {
-                    frames: 0,
                     fps: 0,
-                    totalFrames,
                 });
             },
             (progress) =>
             {
                 importBar.update(progress.frames, {
-                    frames: progress.frames,
                     fps: progress.currentFps
                 });
             }
         );
 
         // Ensure a final update
-        importBar.update(totalFrames, {
-            frames: totalFrames
-        });
-
+        importBar.update(totalFrames);
         importBar.stop();
     }
 
@@ -126,23 +115,28 @@ class VideoManager
 
     async $upscaleFrames(sourceFramePath, scaledFramePath, scale, model, pretend, totalFrames, debug)
     {
-        // const progressBar = new cliProgress.SingleBar({
-        //     format: 'Upscaling Frames  |' + colors.cyan('{bar}') + '| {percentage}% || {frames}/{totalFrames} || FPS: {fps}',
-        //     barCompleteChar: '\u2588',
-        //     barIncompleteChar: '\u2591',
-        //     hideCursor: true
-        // });
+        const progressBar = new cliProgress.SingleBar({
+            format: 'Upscaling Frames  |' + colors.cyan('{bar}') + '| {percentage}% | ETA: {eta_formatted} | {value}/{total} | FPS: {fps}',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+            autopadding: true,
+            hideCursor: true
+        });
 
-        // progressBar.start(totalFrames, 0, {
-        //     frames: 0,
-        //     fps: 0,
-        //     totalFrames,
-        // });
-
-        console.log('Upscaling...');
-
-        // TODO: Need progress reporting
-        await upscaler.upscale(sourceFramePath, scaledFramePath, model, scale);
+        await upscaler.upscale(sourceFramePath, scaledFramePath, model, scale,
+            (cmd) =>
+            {
+                progressBar.start(totalFrames, 0, {
+                    fps: 0,
+                });
+            },
+            (progress) =>
+            {
+                progressBar.update(progress.frames, {
+                    fps: progress.fps
+                });
+            }
+        );
 
         // await this.$upscaleDir(sourceFramePath, scaledFramePath, scale, model, ({ frames, fps }) =>
         // {
@@ -152,20 +146,18 @@ class VideoManager
         //     });
         // }, pretend);
 
-        // // Ensure a final update
-        // progressBar.update(totalFrames, {
-        //     frames: totalFrames
-        // });
-
-        // progressBar.stop();
+        // Ensure a final update
+        progressBar.update(totalFrames);
+        progressBar.stop();
     }
 
     async $extractFrames(videoPath, sourceFramePath, totalFrames, debug)
     {
         const progressBar = new cliProgress.SingleBar({
-            format: 'Extracting Frames |' + colors.cyan('{bar}') + '| {percentage}% || {frames}/{totalFrames} || FPS: {fps}',
+            format: 'Extracting Frames |' + colors.cyan('{bar}') + '| {percentage}% | ETA: {eta_formatted} | {value}/{total} | FPS: {fps}',
             barCompleteChar: '\u2588',
             barIncompleteChar: '\u2591',
+            autopadding: true,
             hideCursor: true
         });
 
@@ -178,25 +170,19 @@ class VideoManager
                 }
 
                 progressBar.start(totalFrames, 0, {
-                    frames: 0,
-                    totalFrames,
                     fps: 0
                 });
             },
             (progress) =>
             {
                 progressBar.update(progress.frames, {
-                    frames: progress.frames,
                     fps: progress.currentFps
                 });
             }
         );
 
-        // Ensure a final update
-        progressBar.update(totalFrames, {
-            frames: totalFrames
-        });
-
+        // Ensure a final update, then stop
+        progressBar.update(totalFrames);
         progressBar.stop();
     }
 

@@ -9,3 +9,8 @@ dist
 
 # Node artifacts
 node_modules
+
+# Video artifacts
+.mkv
+.mp4
+.avi
